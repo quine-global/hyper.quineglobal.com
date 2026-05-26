@@ -4,11 +4,11 @@ benchmark:
 
 .PHONY: build-docker
 build-docker:
-	docker build --platform linux/amd64 . -t quineglobal/coldairnetworks-com
+	docker build --platform linux/amd64 . -t quineglobal/hyper-quineglobal-com
 
 .PHONY: push-docker
 push-docker: build-docker
-	docker push quineglobal/coldairnetworks-com
+	docker push quineglobal/hyper-quineglobal-com
 
 .PHONY: cover
 cover:

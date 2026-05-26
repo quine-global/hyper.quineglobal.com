@@ -19,11 +19,12 @@ type Server struct {
 	mux      chi.Router
 	server   *http.Server
 	postmark *postmark.Client
+	releases *ReleaseCache
 }
 
 type NewServerOptions struct {
-	Log              *slog.Logger
-	PostmarkToken    string
+	Log           *slog.Logger
+	PostmarkToken string
 }
 
 func NewServer(opts NewServerOptions) *Server {
@@ -37,6 +38,7 @@ func NewServer(opts NewServerOptions) *Server {
 		log:      opts.Log,
 		mux:      mux,
 		postmark: postmark.NewClient(opts.PostmarkToken, ""),
+		releases: &ReleaseCache{log: opts.Log},
 		server: &http.Server{
 			Addr:              ":8081",
 			Handler:           mux,
@@ -53,6 +55,16 @@ func (s *Server) Start() error {
 	s.log.Info("Starting http server", "address", "http://localhost:8081")
 
 	s.setupRoutes()
+
+	// Fetch releases immediately, then refresh every hour in the background.
+	go s.releases.TryRefresh(context.Background(), 0)
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			s.releases.TryRefresh(context.Background(), time.Hour)
+		}
+	}()
 
 	if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
