@@ -36,8 +36,7 @@ func start(log *slog.Logger) error {
 
 	// Set up the HTTP server, injecting the database and logger
 	s := http.NewServer(http.NewServerOptions{
-		Log:           log,
-		PostmarkToken: os.Getenv("POSTMARK_SERVER_TOKEN"),
+		Log: log,
 	})
 
 	// Use an errgroup to wait for separate goroutines which can error

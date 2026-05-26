@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mrz1836/postmark"
 )
 
 // Server holds dependencies for the HTTP server as well as the HTTP server itself.
@@ -18,13 +17,11 @@ type Server struct {
 	log      *slog.Logger
 	mux      chi.Router
 	server   *http.Server
-	postmark *postmark.Client
 	releases *ReleaseCache
 }
 
 type NewServerOptions struct {
-	Log           *slog.Logger
-	PostmarkToken string
+	Log *slog.Logger
 }
 
 func NewServer(opts NewServerOptions) *Server {
@@ -37,7 +34,6 @@ func NewServer(opts NewServerOptions) *Server {
 	return &Server{
 		log:      opts.Log,
 		mux:      mux,
-		postmark: postmark.NewClient(opts.PostmarkToken, ""),
 		releases: &ReleaseCache{log: opts.Log},
 		server: &http.Server{
 			Addr:              ":8081",

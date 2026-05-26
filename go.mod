@@ -11,7 +11,4 @@ require (
 	maragu.dev/is v0.2.0
 )
 
-require (
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/mrz1836/postmark v1.9.2 // indirect
-)
+require github.com/mitchellh/mapstructure v1.5.0 // indirect

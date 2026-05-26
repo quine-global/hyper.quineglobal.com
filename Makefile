@@ -2,13 +2,13 @@
 benchmark:
 	go test -bench=.
 
-.PHONY: build-docker
-build-docker:
-	docker build --platform linux/amd64 . -t quineglobal/hyper-quineglobal-com
+.PHONY: build
+build:
+	docker build --platform linux/amd64 . -t forge.quinefoundation.com/ironmagma/hyper-quineglobal-com
 
-.PHONY: push-docker
-push-docker: build-docker
-	docker push quineglobal/hyper-quineglobal-com
+.PHONY: push
+push: build
+	docker push forge.quinefoundation.com/ironmagma/hyper-quineglobal-com
 
 .PHONY: cover
 cover:
