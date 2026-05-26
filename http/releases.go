@@ -34,6 +34,30 @@ func (c *ReleaseCache) Get() []html.Release {
 	return c.releases
 }
 
+// ForceRefresh does a blocking, unconditional fetch regardless of cache age.
+// It waits for any in-progress fetch to finish before starting its own.
+func (c *ReleaseCache) ForceRefresh(ctx context.Context) error {
+	c.fetchMu.Lock()
+	defer c.fetchMu.Unlock()
+
+	releases, err := fetchReleases(ctx)
+	if err != nil {
+		c.log.Warn("Force refresh failed", "error", err)
+		return err
+	}
+	if len(releases) == 0 {
+		return nil
+	}
+
+	c.mu.Lock()
+	c.releases = releases
+	c.lastFetched = time.Now()
+	c.mu.Unlock()
+
+	c.log.Info("Force-refreshed releases from GitHub", "count", len(releases))
+	return nil
+}
+
 // TryRefresh fetches fresh releases if the cache is older than minAge.
 // If a fetch is already in progress it returns immediately (non-blocking).
 func (c *ReleaseCache) TryRefresh(ctx context.Context, minAge time.Duration) {

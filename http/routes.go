@@ -8,6 +8,8 @@ import (
 
 // setupRoutes for the server.
 func (s *Server) setupRoutes() {
+	s.InternalRefresh(s.mux)
+
 	s.mux.Group(func(r chi.Router) {
 		r.Use(middleware.Compress(5))
 

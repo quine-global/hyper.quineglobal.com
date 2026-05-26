@@ -332,21 +332,20 @@ func linuxFormatToggle(dl DownloadProps) Node {
 	appImageHref := fmt.Sprintf("/download?os=linux&arch=%s", dl.SelectedArch)
 	rpmHref := fmt.Sprintf("/download?os=linux-rpm&arch=%s", dl.SelectedArch)
 
-	activeCls := "font-mono text-xs font-semibold text-white"
-	inactiveCls := "font-mono text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+	selectedCls := "inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
+	unselectedCls := "inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
 
-	appImageCls := activeCls
-	rpmCls := inactiveCls
+	appImageCls := selectedCls
+	rpmCls := unselectedCls
 	if isRPM {
-		appImageCls = inactiveCls
-		rpmCls = activeCls
+		appImageCls = unselectedCls
+		rpmCls = selectedCls
 	}
 
 	return Div(Class("mt-4"),
 		P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-3"), Text("Format")),
 		Div(Class("flex items-center gap-2"),
 			A(Href(appImageHref), Class(appImageCls), Text("AppImage")),
-			Span(Class("font-mono text-xs text-zinc-700"), Text("|")),
 			A(Href(rpmHref), Class(rpmCls), Text("RPM")),
 		),
 	)
