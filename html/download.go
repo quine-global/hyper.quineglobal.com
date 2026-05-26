@@ -97,18 +97,24 @@ func fileExt(os string) string {
 		return ".exe"
 	case "linux":
 		return ".AppImage"
+	case "linux-rpm":
+		return ".rpm"
 	default:
 		return ".dmg"
 	}
 }
 
 func platformLabel(os, arch string) string {
+	effectiveOS := os
+	if os == "linux-rpm" {
+		effectiveOS = "linux"
+	}
 	for _, p := range platforms {
-		if p.OS == os && p.Arch == arch {
+		if p.OS == effectiveOS && p.Arch == arch {
 			return p.Label
 		}
 	}
-	return os + " · " + arch
+	return effectiveOS + " · " + arch
 }
 
 // DownloadPage renders the download page with OS/arch selection and version list.
@@ -132,6 +138,9 @@ func DownloadPage(props PageProps, dl DownloadProps) Node {
 			P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-3"), Text("Platform")),
 			Div(Class("flex flex-wrap gap-2"),
 				Group(platformButtons(dl)),
+			),
+			If(dl.SelectedOS == "linux" || dl.SelectedOS == "linux-rpm",
+				linuxFormatToggle(dl),
 			),
 		),
 	}
@@ -234,10 +243,9 @@ func canarySection(canary []Release, dl DownloadProps) Node {
 
 func downloadButton(url, colorCls string) Node {
 	if url == "" {
-		return A(
-			Href("https://github.com/quine-global/hyper/releases"),
-			Class("inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-6 py-3 font-mono text-sm font-semibold text-zinc-400 hover:text-white transition-colors shrink-0"),
-			Text("See on GitHub ↗"),
+		return Span(
+			Class("inline-flex items-center gap-2 rounded-lg border border-zinc-800 px-6 py-3 font-mono text-sm text-zinc-600 shrink-0"),
+			Text("Not available"),
 		)
 	}
 	return A(
@@ -259,10 +267,9 @@ func releaseRows(releases []Release, dl DownloadProps, linkCls string) []Node {
 				Text("↓ "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
 			)
 		} else {
-			link = A(
-				Href("https://github.com/quine-global/hyper/releases/tag/v"+r.Version),
-				Class("font-mono text-xs text-zinc-500 hover:text-white transition-colors"),
-				Text("See on GitHub ↗"),
+			link = Span(
+				Class("font-mono text-xs text-zinc-600"),
+				Text("Not available"),
 			)
 		}
 		nodes[i] = Div(Class("flex items-center justify-between px-5 py-4"),
@@ -278,9 +285,20 @@ func releaseRows(releases []Release, dl DownloadProps, linkCls string) []Node {
 
 func platformButtons(dl DownloadProps) []Node {
 	nodes := make([]Node, len(platforms))
+	// Treat linux-rpm as linux for platform button highlight/detection purposes.
+	effectiveSelectedOS := dl.SelectedOS
+	if dl.SelectedOS == "linux-rpm" {
+		effectiveSelectedOS = "linux"
+	}
 	for i, p := range platforms {
-		isSelected := p.OS == dl.SelectedOS && p.Arch == dl.SelectedArch
+		isSelected := p.OS == effectiveSelectedOS && p.Arch == dl.SelectedArch
 		isDetected := p.OS == dl.DetectedOS && p.Arch == dl.DetectedArch
+
+		// Preserve the linux format (appimage vs rpm) when switching arch.
+		targetOS := p.OS
+		if p.OS == "linux" && dl.SelectedOS == "linux-rpm" {
+			targetOS = "linux-rpm"
+		}
 
 		var cls string
 		if isSelected {
@@ -301,10 +319,35 @@ func platformButtons(dl DownloadProps) []Node {
 		}
 
 		nodes[i] = A(
-			Href(fmt.Sprintf("/download?os=%s&arch=%s", p.OS, p.Arch)),
+			Href(fmt.Sprintf("/download?os=%s&arch=%s", targetOS, p.Arch)),
 			Class(cls),
 			Group(children),
 		)
 	}
 	return nodes
+}
+
+func linuxFormatToggle(dl DownloadProps) Node {
+	isRPM := dl.SelectedOS == "linux-rpm"
+	appImageHref := fmt.Sprintf("/download?os=linux&arch=%s", dl.SelectedArch)
+	rpmHref := fmt.Sprintf("/download?os=linux-rpm&arch=%s", dl.SelectedArch)
+
+	activeCls := "font-mono text-xs font-semibold text-white"
+	inactiveCls := "font-mono text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+
+	appImageCls := activeCls
+	rpmCls := inactiveCls
+	if isRPM {
+		appImageCls = inactiveCls
+		rpmCls = activeCls
+	}
+
+	return Div(Class("mt-4"),
+		P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-3"), Text("Format")),
+		Div(Class("flex items-center gap-2"),
+			A(Href(appImageHref), Class(appImageCls), Text("AppImage")),
+			Span(Class("font-mono text-xs text-zinc-700"), Text("|")),
+			A(Href(rpmHref), Class(rpmCls), Text("RPM")),
+		),
+	)
 }

@@ -28,7 +28,7 @@ func (s *Server) Home(r chi.Router) {
 		selectedOS := detectedOS
 		selectedArch := detectedArch
 
-		if p := r.URL.Query().Get("os"); p == "mac" || p == "windows" || p == "linux" {
+		if p := r.URL.Query().Get("os"); p == "mac" || p == "windows" || p == "linux" || p == "linux-rpm" {
 			selectedOS = p
 		}
 		if a := r.URL.Query().Get("arch"); a == "arm64" || a == "x64" {

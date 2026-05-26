@@ -160,6 +160,10 @@ func classifyAsset(name string) (os, arch string, ok bool) {
 		return "linux", "arm64", true
 	case strings.HasSuffix(l, ".appimage"):
 		return "linux", "x64", true
+	case strings.Contains(l, "arm64") && strings.HasSuffix(l, ".rpm"):
+		return "linux-rpm", "arm64", true
+	case strings.HasSuffix(l, ".rpm"):
+		return "linux-rpm", "x64", true
 	default:
 		return "", "", false
 	}
