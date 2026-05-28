@@ -36,14 +36,7 @@ func (r Release) DisplayVersion() string {
 	return r.Version
 }
 
-// FallbackReleases is used when the GitHub API is unavailable.
-var FallbackReleases = []Release{
-	buildFallback("4.2.0", "May 2026", false),
-	buildFallback("4.1.0", "Mar 2026", false),
-	buildFallback("4.0.0", "Jan 2026", false),
-}
-
-func buildFallback(version, date string, canary bool) Release {
+func buildFallback(version, date string, published time.Time, canary bool) Release {
 	assets := make(map[string]map[string]string)
 	for _, os := range []string{"mac", "windows", "linux"} {
 		assets[os] = make(map[string]string)
@@ -59,7 +52,7 @@ func buildFallback(version, date string, canary bool) Release {
 		TagName:     tag,
 		Version:     version,
 		Date:        date,
-		PublishedAt: time.Now().AddDate(0, -1, 0), // rough fallback
+		PublishedAt: published,
 		IsCanary:    canary,
 		Assets:      assets,
 	}

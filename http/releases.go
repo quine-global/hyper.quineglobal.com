@@ -29,7 +29,7 @@ func (c *ReleaseCache) Get() []html.Release {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	if len(c.releases) == 0 {
-		return html.FallbackReleases
+		return []html.Release{}
 	}
 	return c.releases
 }
