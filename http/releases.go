@@ -130,9 +130,11 @@ func fetchReleases(ctx context.Context) ([]html.Release, error) {
 		}
 		version, canaryBuild := parseTag(strings.TrimPrefix(gr.TagName, "v"))
 		r := html.Release{
+			TagName:     gr.TagName,
 			Version:     version,
 			CanaryBuild: canaryBuild,
 			Date:        gr.PublishedAt.Format("Jan 2006"),
+			PublishedAt: gr.PublishedAt,
 			IsCanary:    gr.Prerelease || canaryBuild > 0,
 			Assets:      make(map[string]map[string]string),
 		}
