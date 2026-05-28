@@ -23,4 +23,8 @@ func (s *Server) setupRoutes() {
 
 		s.Home(r)
 	})
+
+	// Also expose the update feed at the short /update path for convenient
+	// feed URLs (e.g. https://hyper.quineglobal.com/update?platform=...&version=...)
+	s.mux.Get("/update", s.updateCheckHandler())
 }

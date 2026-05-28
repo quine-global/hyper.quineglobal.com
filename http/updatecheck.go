@@ -2,90 +2,145 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"app/html"
 )
 
-type updateCheckResponse struct {
-	HasUpdate bool           `json:"has_update"`
-	Stable    *releaseUpdate `json:"stable,omitempty"`
-	Canary    *releaseUpdate `json:"canary,omitempty"`
-}
-
-type releaseUpdate struct {
-	Version string `json:"version"`
-	Build   int    `json:"build,omitempty"` // canary only
-	Date    string `json:"date"`
+// hazelUpdate is the response format expected by Electron autoUpdater
+// (the same protocol used by the original releases.hyper.is / Hazel).
+type hazelUpdate struct {
+	Name    string `json:"name"`
+	Notes   string `json:"notes,omitempty"`
+	PubDate string `json:"pub_date,omitempty"`
 	URL     string `json:"url,omitempty"`
 }
 
-// UpdateCheck registers GET /api/update-check.
+// UpdateCheck registers the auto-update feed endpoints.
+//
+//   - GET /api/update-check  (primary, matches existing expectations)
+//   - GET /update            (convenience short path)
+//
+// This implements the update protocol used by Hyper's Electron autoUpdater
+// (the same one originally served from releases.hyper.is via Hazel).
 //
 // Query params:
 //
-//	version — current client version, e.g. "4.0.0" or "4.0.0-q-canary.12" (v-prefix stripped)
-//	os      — mac | windows | linux | linux-rpm
-//	arch    — x64 | arm64
-//	canary  — "1" to also include canary update info (implied when client is already on canary)
+//	version  — client's current version, e.g. "4.0.0-q-canary.12" or "v4.0.0"
+//	platform — darwin | win32 | linux | deb   (or os= for compatibility)
+//	arch     — x64 | arm64
+//	channel  — "stable" | "canary"   (explicit preference; takes precedence for track selection)
+//
+// Response:
+//   - 204 No Content  → no update available
+//   - 200 JSON        → update available (Hazel/Squirrel format: {name, notes, pub_date, url?})
 func (s *Server) UpdateCheck(r chi.Router) {
-	r.Get("/api/update-check", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-		rawVersion := strings.TrimPrefix(q.Get("version"), "v")
-		os := q.Get("os")
-		arch := q.Get("arch")
+	r.Get("/api/update-check", s.updateCheckHandler())
+}
 
-		if rawVersion == "" || os == "" || arch == "" {
-			http.Error(w, "version, os, and arch are required", http.StatusBadRequest)
+func (s *Server) updateCheckHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+
+		rawVersion := strings.TrimPrefix(q.Get("version"), "v")
+		platform := firstNonEmpty(q.Get("platform"), q.Get("os"))
+		arch := q.Get("arch")
+		channel := strings.ToLower(q.Get("channel"))
+
+		if rawVersion == "" {
+			http.Error(w, "version is required", http.StatusBadRequest)
 			return
 		}
 
 		clientBase, clientBuild := parseTag(rawVersion)
-		clientIsCanary := clientBuild > 0
-		wantCanary := clientIsCanary || q.Get("canary") == "1"
+		clientIsCanary := clientBuild > 0 || channel == "canary" || channel == "canaryupdates"
+
+		// Map incoming platform names from the Hyper client to our internal asset keys.
+		internalOS := normalizePlatformForAssets(platform)
 
 		releases := s.releases.Get()
 
-		var stableUpdate, canaryUpdate *releaseUpdate
+		// Find the newest release that is newer than what the client has,
+		// on the correct track (stable vs canary), and preferably has assets
+		// for the requested platform/arch.
+		var candidate *html.Release
 		for _, rel := range releases {
-			// Releases arrive newest-first from GitHub; take the first match on each track.
 			if rel.IsCanary {
-				if wantCanary && canaryUpdate == nil && newerCanary(rel, clientBase, clientBuild, clientIsCanary) {
-					canaryUpdate = makeUpdate(rel, os, arch)
+				if clientIsCanary && newerCanary(rel, clientBase, clientBuild, true) {
+					candidate = &rel
+					break
+				}
+				// Non-canary client can still be offered canary if they opted in,
+				// but by default we only auto-offer canary to canary clients
+				// (matching original behavior of separate canary/stable feeds).
+				if !clientIsCanary && newerCanary(rel, clientBase, clientBuild, false) {
+					candidate = &rel
+					break
 				}
 			} else {
-				if stableUpdate == nil && semverCmp(rel.Version, clientBase) > 0 {
-					stableUpdate = makeUpdate(rel, os, arch)
+				if !clientIsCanary && semverCmp(rel.Version, clientBase) > 0 {
+					candidate = &rel
+					break
 				}
-			}
-			if stableUpdate != nil && (!wantCanary || canaryUpdate != nil) {
-				break
 			}
 		}
 
-		resp := updateCheckResponse{
-			HasUpdate: stableUpdate != nil || canaryUpdate != nil,
-			Stable:    stableUpdate,
-			Canary:    canaryUpdate,
+		if candidate == nil {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		// Build the Hazel-compatible response.
+		resp := hazelUpdate{
+			Name:    candidate.TagName,
+			Notes:   fmt.Sprintf("Quine Hyper %s", candidate.TagName),
+			PubDate: candidate.PublishedAt.UTC().Format(time.RFC3339),
+			URL:     candidate.DownloadURL(internalOS, arch),
+		}
+
+		// If we have no precise asset URL for this platform/arch, still tell the
+		// client there is an update (especially important for Linux where the
+		// client only uses the feed to learn *that* a new version exists).
+		if resp.URL == "" {
+			// Provide a generic GitHub releases URL as a fallback.
+			// The client already falls back to constructing a tag URL.
+			resp.URL = fmt.Sprintf("https://github.com/quine-global/hyper/releases/tag/%s", candidate.TagName)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			s.log.Warn("Failed to encode update-check response", "error", err)
+			s.log.Warn("Failed to encode update response", "error", err)
 		}
-	})
+	}
 }
 
-func makeUpdate(rel html.Release, os, arch string) *releaseUpdate {
-	return &releaseUpdate{
-		Version: rel.Version,
-		Build:   rel.CanaryBuild,
-		Date:    rel.Date,
-		URL:     rel.DownloadURL(os, arch),
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	}
+	return b
+}
+
+// normalizePlatformForAssets converts values the Hyper client sends
+// (darwin, win32, deb, etc.) into the keys used in Release.Assets.
+func normalizePlatformForAssets(p string) string {
+	switch strings.ToLower(p) {
+	case "darwin", "mac", "osx":
+		return "mac"
+	case "win32", "win", "windows":
+		return "windows"
+	case "linux", "deb", "appimage":
+		return "linux"
+	case "linux-rpm", "rpm":
+		return "linux-rpm"
+	default:
+		return p
 	}
 }
 

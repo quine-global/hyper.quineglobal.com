@@ -2,6 +2,7 @@ package html
 
 import (
 	"fmt"
+	"time"
 
 	. "maragu.dev/gomponents"
 	. "maragu.dev/gomponents/html"
@@ -9,9 +10,11 @@ import (
 
 // Release is a single GitHub release with per-platform download URLs.
 type Release struct {
-	Version     string
-	CanaryBuild int    // >0 for canary, e.g. 12 from "v4.0.0-q-canary.12"
-	Date        string
+	TagName     string    // Full GitHub tag, e.g. "v4.0.0-q-canary.12"
+	Version     string    // Base semver, e.g. "4.0.0"
+	CanaryBuild int       // >0 for canary, e.g. 12 from "v4.0.0-q-canary.12"
+	Date        string    // Human date for UI, e.g. "May 2026"
+	PublishedAt time.Time // For update feed pub_date
 	IsCanary    bool
 	Assets      map[string]map[string]string // os -> arch -> URL
 }
@@ -48,7 +51,18 @@ func buildFallback(version, date string, canary bool) Release {
 			assets[os][arch] = fallbackURL(version, os, arch)
 		}
 	}
-	return Release{Version: version, Date: date, IsCanary: canary, Assets: assets}
+	tag := "v" + version
+	if canary {
+		tag = "v" + version + "-q-canary.1" // placeholder build
+	}
+	return Release{
+		TagName:     tag,
+		Version:     version,
+		Date:        date,
+		PublishedAt: time.Now().AddDate(0, -1, 0), // rough fallback
+		IsCanary:    canary,
+		Assets:      assets,
+	}
 }
 
 func fallbackURL(version, os, arch string) string {

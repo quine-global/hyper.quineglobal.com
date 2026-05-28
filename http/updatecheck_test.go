@@ -54,3 +54,32 @@ func TestNewerCanary(t *testing.T) {
 		is.True(t, !newerCanary(rel("3.9.0", 99), "4.0.0", 0, false))
 	})
 }
+
+func TestNormalizePlatformForAssets(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"darwin", "mac"},
+		{"Darwin", "mac"},
+		{"mac", "mac"},
+		{"win32", "windows"},
+		{"windows", "windows"},
+		{"deb", "linux"},
+		{"linux", "linux"},
+		{"linux-rpm", "linux-rpm"},
+		{"rpm", "linux-rpm"},
+		{"", ""},
+	}
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			is.Equal(t, c.want, normalizePlatformForAssets(c.in))
+		})
+	}
+}
+
+func TestFirstNonEmpty(t *testing.T) {
+	is.Equal(t, "a", firstNonEmpty("a", "b"))
+	is.Equal(t, "b", firstNonEmpty("", "b"))
+	is.Equal(t, "", firstNonEmpty("", ""))
+}
