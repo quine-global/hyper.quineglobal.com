@@ -181,10 +181,10 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 
 	return Group{
 		// Primary download card
-		Div(Class("mt-10 rounded-xl border border-emerald-500/30 bg-zinc-900 p-6"),
+		Div(Class("mt-10 rounded-xl border border-violet-500/30 bg-zinc-900 p-6"),
 			Div(Class("flex items-center justify-between gap-4 flex-wrap"),
 				Div(
-					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-emerald-400"),
+					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-violet-400"),
 						Text("Recommended"),
 					),
 					H2(Class("mt-1 font-mono text-xl font-bold text-white"),
@@ -194,7 +194,7 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 						Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
 					),
 				),
-				downloadButton(url, "bg-emerald-500 hover:bg-emerald-400 text-black"),
+				downloadButton(url, "bg-violet-500 hover:bg-violet-400 text-black"),
 			),
 		),
 
@@ -203,7 +203,7 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 			Div(Class("mt-8"),
 				P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-4"), Text("Older releases")),
 				Div(Class("divide-y divide-zinc-800 rounded-xl border border-zinc-800"),
-					Group(releaseRows(older, dl, "text-emerald-400 hover:text-emerald-300")),
+					Group(releaseRows(older, dl, "text-violet-400 hover:text-violet-300")),
 				),
 			),
 		),
@@ -309,7 +309,7 @@ func platformButtons(dl DownloadProps) []Node {
 
 		var cls string
 		if isSelected {
-			cls = "inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
+			cls = "inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 		} else {
 			cls = "inline-flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
 		}
@@ -339,7 +339,7 @@ func linuxFormatToggle(dl DownloadProps) Node {
 	appImageHref := fmt.Sprintf("/download?os=linux&arch=%s", dl.SelectedArch)
 	rpmHref := fmt.Sprintf("/download?os=linux-rpm&arch=%s", dl.SelectedArch)
 
-	selectedCls := "inline-flex items-center rounded-md bg-emerald-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
+	selectedCls := "inline-flex items-center rounded-md bg-violet-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 	unselectedCls := "inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
 
 	appImageCls := selectedCls

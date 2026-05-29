@@ -65,7 +65,7 @@ func siteNav() Node {
 					Text("GitHub"),
 				),
 				A(Href("/download"),
-					Class("rounded-md bg-emerald-500 px-4 py-2 font-mono text-sm font-semibold text-black hover:bg-emerald-400 transition-colors"),
+					Class("rounded-md bg-violet-500 px-4 py-2 font-mono text-sm font-semibold text-black hover:bg-violet-400 transition-colors"),
 					Text("Download"),
 				),
 			),
