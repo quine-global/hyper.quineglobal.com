@@ -231,15 +231,15 @@ func canarySection(canary []Release, dl DownloadProps) Node {
 
 	return Div(Class("mt-10"),
 		Div(Class("mb-4 flex items-center gap-3"),
-			P(Class("font-mono text-xs uppercase tracking-widest text-yellow-500"), Text("Canary releases")),
+			P(Class("font-mono text-xs uppercase tracking-widest text-canary-500"), Text("Canary releases")),
 			Span(Class("font-mono text-xs text-zinc-600"), Text("— unstable, may contain bugs")),
 		),
 
 		// Latest canary card
-		Div(Class("rounded-xl border border-yellow-500/30 bg-zinc-900 p-6"),
+		Div(Class("rounded-xl border border-canary-500/30 bg-zinc-900 p-6"),
 			Div(Class("flex items-center justify-between gap-4 flex-wrap"),
 				Div(
-					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-yellow-400"),
+					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-canary-400"),
 						Text("Latest Canary"),
 					),
 					H2(Class("mt-1 font-mono text-base font-bold text-white"),
@@ -249,14 +249,14 @@ func canarySection(canary []Release, dl DownloadProps) Node {
 						Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
 					),
 				),
-				downloadButton(url, "bg-yellow-500 hover:bg-yellow-400 text-black", "py-2 text-xs"),
+				downloadButton(url, "bg-canary-500 hover:bg-canary-400 text-black", "py-2 text-xs"),
 			),
 		),
 
 		// Older canary releases
 		If(len(older) > 0,
 			Div(Class("mt-4 divide-y divide-zinc-800 rounded-xl border border-zinc-800"),
-				Group(releaseRows(older, dl, "text-yellow-400 hover:text-yellow-300")),
+				Group(releaseRows(older, dl, "text-canary-400 hover:text-canary-300")),
 			),
 		),
 	)
