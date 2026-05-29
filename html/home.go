@@ -14,7 +14,7 @@ func HomePage(props PageProps) Node {
 		// Hero
 		Div(Class("py-20 text-center"),
 			Div(Class("mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-4 py-1.5"),
-				Span(Class("h-2 w-2 rounded-full bg-violet-400")),
+				Span(Class("h-2 w-2 rounded-full bg-primary-400")),
 				Span(Class("font-mono text-xs text-zinc-400"), Text("Forked from Vercel's Hyper")),
 			),
 			H1(Class("font-mono text-5xl font-bold tracking-tight text-white sm:text-6xl"),
@@ -25,7 +25,7 @@ func HomePage(props PageProps) Node {
 			),
 			Div(Class("mt-10 flex flex-wrap items-center justify-center gap-4"),
 				A(Href("/download"),
-					Class("inline-flex items-center gap-2 rounded-lg bg-violet-500 px-8 py-3 font-mono text-base font-semibold text-black hover:bg-violet-400 transition-colors"),
+					Class("inline-flex items-center gap-2 rounded-lg bg-primary-500 px-8 py-3 font-mono text-base font-semibold text-black hover:bg-primary-400 transition-colors"),
 					Text("Download for free"),
 				),
 				A(Href("https://github.com/quine-global/hyper"),
@@ -41,7 +41,7 @@ func HomePage(props PageProps) Node {
 			Div(Class("flex items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-3"),
 				Div(Class("h-3 w-3 rounded-full bg-red-500 opacity-80")),
 				Div(Class("h-3 w-3 rounded-full bg-yellow-500 opacity-80")),
-				Div(Class("h-3 w-3 rounded-full bg-violet-500 opacity-80")),
+				Div(Class("h-3 w-3 rounded-full bg-primary-500 opacity-80")),
 				Span(Class("ml-4 font-mono text-xs text-zinc-500"), Text("quine-hyper — bash — 80×24")),
 			),
 			// Terminal body
@@ -56,7 +56,7 @@ func HomePage(props PageProps) Node {
 				termOutput("drwxr-xr-x  earth/"),
 				termOutput("drwxr-xr-x  magrathea/"),
 				termOutput("drwxr-xr-x  slartibartfast/"),
-				Div(Class("flex items-center gap-0 text-violet-400"),
+				Div(Class("flex items-center gap-0 text-primary-400"),
 					Span(Class("text-zinc-500"), Text("❯ ")),
 					Span(Class("animate-pulse"), Text("█")),
 				),
@@ -73,12 +73,12 @@ func HomePage(props PageProps) Node {
 					Group{
 						Text("Install plugins and themes from npm. Browse "),
 						A(Href("https://hyper.is/plugins"),
-							Class("text-violet-400 hover:text-violet-300 underline"),
+							Class("text-primary-400 hover:text-primary-300 underline"),
 							Text("featured plugins"),
 						),
 						Text(" and "),
 						A(Href("https://hyper.is/themes"),
-							Class("text-violet-400 hover:text-violet-300 underline"),
+							Class("text-primary-400 hover:text-primary-300 underline"),
 							Text("featured themes"),
 						),
 						Text(". Build your own with HTML, CSS, and JavaScript."),
@@ -106,7 +106,7 @@ func HomePage(props PageProps) Node {
 			H2(Class("font-mono text-2xl font-bold text-white"), Text("Built on Hyper")),
 			P(Class("mx-auto mt-4 max-w-xl font-mono text-base text-zinc-400"),
 				Text("Quine Hyper is a fork of "),
-				A(Href("https://hyper.is"), Class("text-violet-400 hover:text-violet-300 underline"), Text("Hyper")),
+				A(Href("https://hyper.is"), Class("text-primary-400 hover:text-primary-300 underline"), Text("Hyper")),
 				Text(", the open-source terminal by Vercel. We're building on that foundation with new capabilities and active development."),
 			),
 			Div(Class("mt-8"),
@@ -121,7 +121,7 @@ func HomePage(props PageProps) Node {
 
 func termPrompt(cmd string) Node {
 	return Div(Class("flex items-center gap-2"),
-		Span(Class("text-violet-400"), Text("❯")),
+		Span(Class("text-primary-400"), Text("❯")),
 		Span(Class("text-white"), Text(cmd)),
 	)
 }
@@ -135,7 +135,7 @@ func featureCard(title string, body Node, code string) Node {
 		H3(Class("font-mono text-base font-semibold text-white"), Text(title)),
 		P(Class("mt-3 font-mono text-sm text-zinc-400 leading-relaxed"), body),
 		Div(Class("mt-5 inline-block rounded-md bg-zinc-800 px-3 py-1.5"),
-			Span(Class("font-mono text-xs text-violet-400"), Text(code)),
+			Span(Class("font-mono text-xs text-primary-400"), Text(code)),
 		),
 	)
 }

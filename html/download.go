@@ -189,14 +189,14 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 	return Group{
 		Div(Class("mt-10"),
 			Div(Class("mb-4 flex items-center gap-3"),
-				P(Class("font-mono text-xs uppercase tracking-widest text-[#50d9a8]"), Text("Stable releases")),
+				P(Class("font-mono text-xs uppercase tracking-widest text-seafoam-400"), Text("Stable releases")),
 			),
 
 			// Primary download card
-			Div(Class("min-h-[200px] flex items-center rounded-xl border border-[#50d9a8]/30 bg-zinc-900 p-6"),
+			Div(Class("min-h-[200px] flex items-center rounded-xl border border-seafoam-400/30 bg-zinc-900 p-6"),
 				Div(Class("flex w-full items-center justify-between gap-4 flex-wrap"),
 					Div(
-						Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-[#50d9a8]"),
+						Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-seafoam-400"),
 							Text("Latest Stable"),
 						),
 						H2(Class("mt-1 font-mono text-xl font-bold text-white"),
@@ -207,7 +207,7 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 						),
 					),
 					Div(Class("flex-1")),
-					downloadButton(url, "bg-[#50d9a8] hover:bg-[#3db88a] text-black"),
+					downloadButton(url, "bg-seafoam-400 hover:bg-seafoam-500 text-black"),
 				),
 			),
 		),
@@ -217,7 +217,7 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 			Div(Class("mt-8"),
 				P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-4"), Text("Older releases")),
 				Div(Class("divide-y divide-zinc-800 rounded-xl border border-zinc-800"),
-					Group(releaseRows(older, dl, "text-[#50d9a8] hover:text-[#3db88a]")),
+					Group(releaseRows(older, dl, "text-seafoam-400 hover:text-seafoam-500")),
 				),
 			),
 		),
@@ -332,7 +332,7 @@ func platformButtons(dl DownloadProps) []Node {
 
 		var cls string
 		if isSelected {
-			cls = "inline-flex items-center gap-1.5 rounded-md bg-violet-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
+			cls = "inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 		} else {
 			cls = "inline-flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
 		}
@@ -358,7 +358,7 @@ func platformButtons(dl DownloadProps) []Node {
 }
 
 func linuxFormatToggle(dl DownloadProps) Node {
-	selectedCls := "inline-flex items-center rounded-md bg-violet-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
+	selectedCls := "inline-flex items-center rounded-md bg-primary-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 	unselectedCls := "inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
 	cls := func(targetOS string) string {
 		if dl.SelectedOS == targetOS {
