@@ -187,21 +187,27 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 	url := latest.DownloadURL(dl.SelectedOS, dl.SelectedArch)
 
 	return Group{
-		// Primary download card
-		Div(Class("mt-10 rounded-xl border border-violet-500/30 bg-zinc-900 p-6"),
-			Div(Class("flex items-center justify-between gap-4 flex-wrap"),
-				Div(
-					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-violet-400"),
-						Text("Recommended"),
+		Div(Class("mt-10"),
+			Div(Class("mb-4 flex items-center gap-3"),
+				P(Class("font-mono text-xs uppercase tracking-widest text-violet-500"), Text("Stable releases")),
+			),
+
+			// Primary download card
+			Div(Class("min-h-[330px] flex items-center rounded-xl border border-violet-500/30 bg-zinc-900 p-6"),
+				Div(Class("flex items-center justify-between gap-4 flex-wrap"),
+					Div(
+						Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-violet-400"),
+							Text("Latest Stable"),
+						),
+						H2(Class("mt-1 font-mono text-xl font-bold text-white"),
+							Text("Quine Hyper v"+latest.DisplayVersion()),
+						),
+						P(Class("mt-1 font-mono text-xs text-zinc-500"),
+							Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
+						),
 					),
-					H2(Class("mt-1 font-mono text-xl font-bold text-white"),
-						Text("Quine Hyper v"+latest.DisplayVersion()),
-					),
-					P(Class("mt-1 font-mono text-xs text-zinc-500"),
-						Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
-					),
+					downloadButton(url, "bg-violet-500 hover:bg-violet-400 text-black"),
 				),
-				downloadButton(url, "bg-violet-500 hover:bg-violet-400 text-black"),
 			),
 		),
 
