@@ -32,9 +32,16 @@ func TestClassifyAsset(t *testing.T) {
 		{"QuineHyper-4.0.0-armv7l.AppImage", "", "", false},
 		{"quinehyper-4.0.0-armv7l.appimage", "", "", false},
 
-		// Linux RPM
+		// Linux RPM x64 — real asset uses x86_64 suffix
 		{"QuineHyper-4.0.0.rpm", "linux-rpm", "x64", true},
+		{"Hyper-4.0.0-x86_64.rpm", "linux-rpm", "x64", true},
+
+		// Linux RPM arm64 — real asset uses aarch64, not arm64
 		{"QuineHyper-4.0.0-arm64.rpm", "linux-rpm", "arm64", true},
+		{"Hyper-4.0.0-aarch64.rpm", "linux-rpm", "arm64", true},
+
+		// Linux RPM armv7l — must NOT be classified as x64
+		{"Hyper-4.0.0-armv7l.rpm", "", "", false},
 
 		// Unknown / unrecognised
 		{"QuineHyper-4.0.0.zip", "", "", false},
