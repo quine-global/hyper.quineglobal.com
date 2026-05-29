@@ -135,10 +135,16 @@ func normalizePlatformForAssets(p string) string {
 		return "mac"
 	case "win32", "win", "windows":
 		return "windows"
-	case "linux", "deb", "appimage":
+	case "linux", "appimage":
 		return "linux"
+	case "linux-deb", "deb":
+		return "linux-deb"
 	case "linux-rpm", "rpm":
 		return "linux-rpm"
+	case "linux-snap", "snap":
+		return "linux-snap"
+	case "linux-pacman", "pacman":
+		return "linux-pacman"
 	default:
 		return p
 	}

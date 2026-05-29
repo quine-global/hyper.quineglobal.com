@@ -2,6 +2,7 @@ package html
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	. "maragu.dev/gomponents"
@@ -104,8 +105,14 @@ func fileExt(os string) string {
 		return ".exe"
 	case "linux":
 		return ".AppImage"
+	case "linux-deb":
+		return ".deb"
 	case "linux-rpm":
 		return ".rpm"
+	case "linux-snap":
+		return ".snap"
+	case "linux-pacman":
+		return ".pacman"
 	default:
 		return ".dmg"
 	}
@@ -146,7 +153,7 @@ func DownloadPage(props PageProps, dl DownloadProps) Node {
 			Div(Class("flex flex-wrap gap-2"),
 				Group(platformButtons(dl)),
 			),
-			If(dl.SelectedOS == "linux" || dl.SelectedOS == "linux-rpm",
+			If(strings.HasPrefix(dl.SelectedOS, "linux"),
 				linuxFormatToggle(dl),
 			),
 		),
@@ -294,17 +301,19 @@ func platformButtons(dl DownloadProps) []Node {
 	nodes := make([]Node, len(platforms))
 	// Treat linux-rpm as linux for platform button highlight/detection purposes.
 	effectiveSelectedOS := dl.SelectedOS
-	if dl.SelectedOS == "linux-rpm" {
+	if strings.HasPrefix(dl.SelectedOS, "linux") {
 		effectiveSelectedOS = "linux"
 	}
 	for i, p := range platforms {
 		isSelected := p.OS == effectiveSelectedOS && p.Arch == dl.SelectedArch
 		isDetected := p.OS == dl.DetectedOS && p.Arch == dl.DetectedArch
 
-		// Preserve the linux format (appimage vs rpm) when switching arch.
+		// Preserve the linux format when switching arch; snap is x64-only so don't carry it to arm64.
 		targetOS := p.OS
-		if p.OS == "linux" && dl.SelectedOS == "linux-rpm" {
-			targetOS = "linux-rpm"
+		if p.OS == "linux" && strings.HasPrefix(dl.SelectedOS, "linux-") {
+			if dl.SelectedOS != "linux-snap" || p.Arch == "x64" {
+				targetOS = dl.SelectedOS
+			}
 		}
 
 		var cls string
@@ -335,25 +344,32 @@ func platformButtons(dl DownloadProps) []Node {
 }
 
 func linuxFormatToggle(dl DownloadProps) Node {
-	isRPM := dl.SelectedOS == "linux-rpm"
-	appImageHref := fmt.Sprintf("/download?os=linux&arch=%s", dl.SelectedArch)
-	rpmHref := fmt.Sprintf("/download?os=linux-rpm&arch=%s", dl.SelectedArch)
-
 	selectedCls := "inline-flex items-center rounded-md bg-violet-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 	unselectedCls := "inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
+	cls := func(targetOS string) string {
+		if dl.SelectedOS == targetOS {
+			return selectedCls
+		}
+		return unselectedCls
+	}
+	href := func(targetOS string) string {
+		return fmt.Sprintf("/download?os=%s&arch=%s", targetOS, dl.SelectedArch)
+	}
 
-	appImageCls := selectedCls
-	rpmCls := unselectedCls
-	if isRPM {
-		appImageCls = unselectedCls
-		rpmCls = selectedCls
+	buttons := []Node{
+		A(Href(href("linux")), Class(cls("linux")), Text("AppImage")),
+		A(Href(href("linux-deb")), Class(cls("linux-deb")), Text("DEB")),
+		A(Href(href("linux-rpm")), Class(cls("linux-rpm")), Text("RPM")),
+		A(Href(href("linux-pacman")), Class(cls("linux-pacman")), Text("Pacman")),
+	}
+	if dl.SelectedArch == "x64" {
+		buttons = append(buttons, A(Href(href("linux-snap")), Class(cls("linux-snap")), Text("Snap")))
 	}
 
 	return Div(Class("mt-4"),
 		P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-3"), Text("Format")),
 		Div(Class("flex items-center gap-2"),
-			A(Href(appImageHref), Class(appImageCls), Text("AppImage")),
-			A(Href(rpmHref), Class(rpmCls), Text("RPM")),
+			Group(buttons),
 		),
 	)
 }

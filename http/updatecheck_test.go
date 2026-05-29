@@ -65,10 +65,16 @@ func TestNormalizePlatformForAssets(t *testing.T) {
 		{"mac", "mac"},
 		{"win32", "windows"},
 		{"windows", "windows"},
-		{"deb", "linux"},
 		{"linux", "linux"},
+		{"appimage", "linux"},
+		{"deb", "linux-deb"},
+		{"linux-deb", "linux-deb"},
 		{"linux-rpm", "linux-rpm"},
 		{"rpm", "linux-rpm"},
+		{"linux-snap", "linux-snap"},
+		{"snap", "linux-snap"},
+		{"linux-pacman", "linux-pacman"},
+		{"pacman", "linux-pacman"},
 		{"", ""},
 	}
 	for _, c := range cases {

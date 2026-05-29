@@ -194,6 +194,22 @@ func classifyAsset(name string) (os, arch string, ok bool) {
 		return "", "", false
 	case strings.HasSuffix(l, ".rpm"):
 		return "linux-rpm", "x64", true
+	case strings.Contains(l, "arm64") && strings.HasSuffix(l, ".deb"):
+		return "linux-deb", "arm64", true
+	case strings.Contains(l, "armv7l") && strings.HasSuffix(l, ".deb"):
+		return "", "", false
+	case strings.HasSuffix(l, ".deb"):
+		return "linux-deb", "x64", true
+	case strings.Contains(l, "armv7l") && strings.HasSuffix(l, ".snap"):
+		return "", "", false
+	case strings.HasSuffix(l, ".snap"):
+		return "linux-snap", "x64", true
+	case (strings.Contains(l, "arm64") || strings.Contains(l, "aarch64")) && strings.HasSuffix(l, ".pacman"):
+		return "linux-pacman", "arm64", true
+	case strings.Contains(l, "armv7l") && strings.HasSuffix(l, ".pacman"):
+		return "", "", false
+	case strings.HasSuffix(l, ".pacman"):
+		return "linux-pacman", "x64", true
 	default:
 		return "", "", false
 	}

@@ -43,6 +43,27 @@ func TestClassifyAsset(t *testing.T) {
 		// Linux RPM armv7l — must NOT be classified as x64
 		{"Hyper-4.0.0-armv7l.rpm", "", "", false},
 
+		// Linux DEB x64 — real asset uses amd64 suffix
+		{"Hyper-4.0.0-q-canary.8-amd64.deb", "linux-deb", "x64", true},
+
+		// Linux DEB arm64
+		{"Hyper-4.0.0-q-canary.8-arm64.deb", "linux-deb", "arm64", true},
+
+		// Linux DEB armv7l — must NOT be classified as x64
+		{"Hyper-4.0.0-q-canary.8-armv7l.deb", "", "", false},
+
+		// Linux Snap — x64 only
+		{"Hyper-4.0.0-q-canary.8-amd64.snap", "linux-snap", "x64", true},
+
+		// Linux Pacman x64
+		{"Hyper-4.0.0-q-canary.8-x64.pacman", "linux-pacman", "x64", true},
+
+		// Linux Pacman arm64 — real asset uses aarch64 suffix
+		{"Hyper-4.0.0-q-canary.8-aarch64.pacman", "linux-pacman", "arm64", true},
+
+		// Linux Pacman armv7l — must NOT be classified as x64
+		{"Hyper-4.0.0-q-canary.8-armv7l.pacman", "", "", false},
+
 		// Unknown / unrecognised
 		{"QuineHyper-4.0.0.zip", "", "", false},
 		{"latest.yml", "", "", false},
