@@ -193,8 +193,8 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 			),
 
 			// Primary download card
-			Div(Class("min-h-[330px] flex items-center rounded-xl border border-violet-500/30 bg-zinc-900 p-6"),
-				Div(Class("flex items-center justify-between gap-4 flex-wrap"),
+			Div(Class("min-h-[200px] flex items-center rounded-xl border border-violet-500/30 bg-zinc-900 p-6"),
+				Div(Class("flex w-full items-center justify-between gap-4 flex-wrap"),
 					Div(
 						Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-violet-400"),
 							Text("Latest Stable"),
@@ -206,6 +206,7 @@ func stableSection(stable []Release, dl DownloadProps) Node {
 							Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
 						),
 					),
+					Div(Class("flex-1")),
 					downloadButton(url, "bg-violet-500 hover:bg-violet-400 text-black"),
 				),
 			),
@@ -241,14 +242,14 @@ func canarySection(canary []Release, dl DownloadProps) Node {
 					Span(Class("font-mono text-xs font-semibold uppercase tracking-widest text-yellow-400"),
 						Text("Latest Canary"),
 					),
-					H2(Class("mt-1 font-mono text-xl font-bold text-white"),
+					H2(Class("mt-1 font-mono text-base font-bold text-white"),
 						Text("Quine Hyper v"+latest.DisplayVersion()),
 					),
 					P(Class("mt-1 font-mono text-xs text-zinc-500"),
 						Text(latest.Date+" · "+platformLabel(dl.SelectedOS, dl.SelectedArch)+fileExt(dl.SelectedOS)),
 					),
 				),
-				downloadButton(url, "bg-yellow-500 hover:bg-yellow-400 text-black"),
+				downloadButton(url, "bg-yellow-500 hover:bg-yellow-400 text-black", "py-2 text-xs"),
 			),
 		),
 
@@ -261,16 +262,23 @@ func canarySection(canary []Release, dl DownloadProps) Node {
 	)
 }
 
-func downloadButton(url, colorCls string) Node {
+func downloadButton(url, colorCls string, extraCls ...string) Node {
+	base := "inline-flex items-center justify-center gap-2 rounded-lg w-[135px] font-mono font-semibold transition-colors shrink-0 "
+
+	sizeCls := "px-6 py-3 text-sm"
+	if len(extraCls) > 0 && extraCls[0] != "" {
+		sizeCls = extraCls[0]
+	}
+
+	btnCls := base + sizeCls + " " + colorCls
+	unavailableCls := base + sizeCls + " border border-zinc-800 text-zinc-600"
+
 	if url == "" {
-		return Span(
-			Class("inline-flex items-center gap-2 rounded-lg border border-zinc-800 px-6 py-3 font-mono text-sm text-zinc-600 shrink-0"),
-			Text("Not available"),
-		)
+		return Span(Class(unavailableCls), Text("Not available"))
 	}
 	return A(
 		Href(url),
-		Class("inline-flex items-center gap-2 rounded-lg px-6 py-3 font-mono text-sm font-semibold transition-colors shrink-0 "+colorCls),
+		Class(btnCls),
 		Text("↓ Download"),
 	)
 }
