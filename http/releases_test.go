@@ -64,6 +64,15 @@ func TestClassifyAsset(t *testing.T) {
 		// Linux Pacman armv7l — must NOT be classified as x64
 		{"Hyper-4.0.0-q-canary.8-armv7l.pacman", "", "", false},
 
+		// Linux Flatpak x64 — real asset uses x86_64 suffix
+		{"Hyper-4.0.0-q-canary.8-x86_64.flatpak", "linux-flatpak", "x64", true},
+
+		// Linux Flatpak arm64 — real asset uses aarch64 suffix
+		{"Hyper-4.0.0-q-canary.8-aarch64.flatpak", "linux-flatpak", "arm64", true},
+
+		// Linux Flatpak armv7l — must NOT be classified as x64
+		{"Hyper-4.0.0-q-canary.8-armv7l.flatpak", "", "", false},
+
 		// Unknown / unrecognised
 		{"QuineHyper-4.0.0.zip", "", "", false},
 		{"latest.yml", "", "", false},

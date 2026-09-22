@@ -210,6 +210,12 @@ func classifyAsset(name string) (os, arch string, ok bool) {
 		return "", "", false
 	case strings.HasSuffix(l, ".pacman"):
 		return "linux-pacman", "x64", true
+	case (strings.Contains(l, "arm64") || strings.Contains(l, "aarch64")) && strings.HasSuffix(l, ".flatpak"):
+		return "linux-flatpak", "arm64", true
+	case strings.Contains(l, "armv7l") && strings.HasSuffix(l, ".flatpak"):
+		return "", "", false
+	case strings.HasSuffix(l, ".flatpak"):
+		return "linux-flatpak", "x64", true
 	default:
 		return "", "", false
 	}

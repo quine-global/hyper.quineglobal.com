@@ -82,6 +82,7 @@ type DownloadProps struct {
 	DetectedArch string
 	SelectedOS   string
 	SelectedArch string
+	ArchExplicit bool // true if arch came from an explicit ?arch= query param rather than auto-detection
 	Releases     []Release
 }
 
@@ -113,6 +114,8 @@ func fileExt(os string) string {
 		return ".snap"
 	case "linux-pacman":
 		return ".pacman"
+	case "linux-flatpak":
+		return ".flatpak"
 	default:
 		return ".dmg"
 	}
@@ -147,6 +150,7 @@ func DownloadPage(props PageProps, dl DownloadProps) Node {
 	}
 
 	content := []Node{
+		If(dl.SelectedOS == "mac" && !dl.ArchExplicit, macArchDetectScript()),
 		H1(Class("font-mono text-3xl font-bold text-white"), Text("Download Quine Hyper")),
 		Div(Class("mt-8"),
 			P(Class("font-mono text-xs uppercase tracking-widest text-zinc-500 mb-3"), Text("Platform")),
@@ -357,6 +361,29 @@ func platformButtons(dl DownloadProps) []Node {
 	return nodes
 }
 
+// macArchDetectScript corrects the arm64 default guess on real Intel Macs.
+// Browser User-Agent strings report "Intel Mac OS X" even on Apple Silicon, so
+// the server can't tell arm64 from x64 from headers alone. The WebGL renderer
+// string is the one client-side signal that actually differs: Apple Silicon
+// reports something containing "Apple" (e.g. "Apple M2"); real Intel/AMD/Nvidia
+// GPUs never do. If it doesn't look like Apple Silicon, reload with ?arch=x64.
+func macArchDetectScript() Node {
+	return Script(Raw(`(function(){
+  try {
+    var c = document.createElement('canvas');
+    var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (!gl) return;
+    var ext = gl.getExtension('WEBGL_debug_renderer_info');
+    if (!ext) return;
+    var renderer = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '');
+    if (!renderer || /Apple/i.test(renderer)) return;
+    var url = new URL(window.location.href);
+    url.searchParams.set('arch', 'x64');
+    window.location.replace(url.toString());
+  } catch (e) {}
+})();`))
+}
+
 func linuxFormatToggle(dl DownloadProps) Node {
 	selectedCls := "inline-flex items-center rounded-md bg-primary-500 px-3 py-1.5 font-mono text-xs font-semibold text-black"
 	unselectedCls := "inline-flex items-center rounded-md border border-zinc-700 bg-zinc-900 px-3 py-1.5 font-mono text-xs text-zinc-300 hover:border-zinc-500 hover:text-white transition-colors"
@@ -375,6 +402,7 @@ func linuxFormatToggle(dl DownloadProps) Node {
 		A(Href(href("linux-deb")), Class(cls("linux-deb")), Text("DEB")),
 		A(Href(href("linux-rpm")), Class(cls("linux-rpm")), Text("RPM")),
 		A(Href(href("linux-pacman")), Class(cls("linux-pacman")), Text("Pacman")),
+		A(Href(href("linux-flatpak")), Class(cls("linux-flatpak")), Text("Flatpak")),
 	}
 	if dl.SelectedArch == "x64" {
 		buttons = append(buttons, A(Href(href("linux-snap")), Class(cls("linux-snap")), Text("Snap")))

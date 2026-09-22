@@ -145,6 +145,8 @@ func normalizePlatformForAssets(p string) string {
 		return "linux-snap"
 	case "linux-pacman", "pacman":
 		return "linux-pacman"
+	case "linux-flatpak", "flatpak":
+		return "linux-flatpak"
 	default:
 		return p
 	}

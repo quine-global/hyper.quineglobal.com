@@ -28,11 +28,13 @@ func (s *Server) Home(r chi.Router) {
 		selectedOS := detectedOS
 		selectedArch := detectedArch
 
-		if p := r.URL.Query().Get("os"); p == "mac" || p == "windows" || p == "linux" || p == "linux-rpm" || p == "linux-deb" || p == "linux-snap" || p == "linux-pacman" {
+		if p := r.URL.Query().Get("os"); p == "mac" || p == "windows" || p == "linux" || p == "linux-rpm" || p == "linux-deb" || p == "linux-snap" || p == "linux-pacman" || p == "linux-flatpak" {
 			selectedOS = p
 		}
+		archExplicit := false
 		if a := r.URL.Query().Get("arch"); a == "arm64" || a == "x64" {
 			selectedArch = a
+			archExplicit = true
 		}
 
 		return html.DownloadPage(html.PageProps{}, html.DownloadProps{
@@ -40,6 +42,7 @@ func (s *Server) Home(r chi.Router) {
 			DetectedArch: detectedArch,
 			SelectedOS:   selectedOS,
 			SelectedArch: selectedArch,
+			ArchExplicit: archExplicit,
 			Releases:     s.releases.Get(),
 		}), nil
 	}))

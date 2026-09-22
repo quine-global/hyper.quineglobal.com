@@ -75,6 +75,8 @@ func TestNormalizePlatformForAssets(t *testing.T) {
 		{"snap", "linux-snap"},
 		{"linux-pacman", "linux-pacman"},
 		{"pacman", "linux-pacman"},
+		{"linux-flatpak", "linux-flatpak"},
+		{"flatpak", "linux-flatpak"},
 		{"", ""},
 	}
 	for _, c := range cases {
