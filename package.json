@@ -2,7 +2,7 @@
   "name": "hyper-quineglobal-com",
   "private": true,
   "devDependencies": {
-    "tailwindcss": "^3.4.0"
+    "tailwindcss": "^4.3.5"
   },
   "scripts": {
     "css": "tailwindcss -i public/styles/input.css -o public/styles/app.css --minify",
